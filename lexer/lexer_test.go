@@ -6,20 +6,57 @@ import (
 	"github.com/MYKatz/PLZ/token"
 )
 
-func TestNextToken(t *testing.T) {
-	input := "=+(){}, plz"
+func TestNextToken(test *testing.T) {
+	input := `
+	let five be 5 plz
+	let ten be 10 plz
+	let add be function(a, c) please
+		a + c plz
+	thanks
+	
+	let result be add(five, ten) plz
+	`
 	tests := []struct {
 		expectedType    token.TokenType
 		expectedLiteral string
 	}{
-		{token.ASSIGN, "="},
-		{token.PLUS, "+"},
-		{token.LPAREN, "("},
-		{token.RPAREN, ")"},
-		{token.LBRACE, "{"},
-		{token.RBRACE, "}"},
-		{token.COMMA, ","},
+		{token.LET, "let"},
+		{token.IDENT, "five"},
+		{token.ASSIGN, "be"},
+		{token.INT, "5"},
 		{token.TERMINATOR, "plz"},
+		{token.LET, "let"},
+		{token.IDENT, "ten"},
+		{token.ASSIGN, "be"},
+		{token.INT, "10"},
+		{token.TERMINATOR, "plz"},
+		{token.LET, "let"},
+		{token.IDENT, "add"},
+		{token.ASSIGN, "be"},
+		{token.FUNCTION, "function"},
+		{token.LPAREN, "("},
+		{token.IDENT, "a"},
+		{token.COMMA, ","},
+		{token.IDENT, "c"},
+		{token.RPAREN, ")"},
+		{token.LBRACE, "please"}, //please as lbrace and thanks as rbrace
+		{token.IDENT, "a"},
+		{token.PLUS, "+"},
+		{token.IDENT, "c"},
+		{token.TERMINATOR, "plz"},
+		{token.RBRACE, "thanks"},
+		//should maybe have a 'semicolon'/terminator here..
+		{token.LET, "let"},
+		{token.IDENT, "result"},
+		{token.ASSIGN, "be"},
+		{token.IDENT, "add"},
+		{token.LPAREN, "("},
+		{token.IDENT, "five"},
+		{token.COMMA, ","},
+		{token.COMMA, "ten"},
+		{token.RPAREN, ")"},
+		{token.TERMINATOR, "plz"},
+		{token.EOF, ""},
 	}
 
 	l := NewLexer(input) //eventually will be the lexer
@@ -27,11 +64,11 @@ func TestNextToken(t *testing.T) {
 		t := l.NextToken()
 
 		if t.Type != exp.expectedType {
-			t.Fatalf("Test #%d: incorrect token type. Expected %s, received %s.", i, exp.expectedType, t.Type)
+			test.Fatalf("Test #%d: incorrect token type. Expected %s, received %s.", i, exp.expectedType, t.Type)
 		}
 
 		if t.Literal != exp.expectedLiteral {
-			t.Fatalf("Test #%d: incorrect token literal. Expected %s, received %s", i, exp.expectedLiteral, t.Literal)
+			test.Fatalf("Test #%d: incorrect token literal. Expected %s, received %s", i, exp.expectedLiteral, t.Literal)
 		}
 	}
 }
