@@ -17,8 +17,18 @@ const (
 	FLOAT = "FLOAT"
 
 	//operators
-	ASSIGN = "BE"
-	PLUS   = "+"
+	ASSIGN      = "BE"
+	PLUS        = "+"
+	MINUS       = "-"
+	ASTERISK    = "*"
+	SLASH       = "/"
+	EXCLAMATION = "!"
+
+	//comparison
+	LT     = "<"
+	GT     = ">"
+	EQ     = "=="
+	NOT_EQ = "!="
 
 	//delimiters
 	COMMA      = ","
@@ -32,6 +42,11 @@ const (
 	//keywords
 	FUNCTION = "FUNCTION"
 	LET      = "LET"
+	TRUE     = "TRUE"
+	FALSE    = "FALSE"
+	RETURN   = "RETURN"
+	IF       = "IF"
+	ELSE     = "ELSE"
 )
 
 var keywords = map[string]TokenType{
@@ -41,6 +56,11 @@ var keywords = map[string]TokenType{
 	"plz":      TERMINATOR,
 	"please":   LBRACE,
 	"thanks":   RBRACE,
+	"True":     TRUE,
+	"False":    FALSE,
+	"if":       IF,
+	"else":     ELSE,
+	"return":   RETURN,
 }
 
 func NewToken(tt TokenType, literal byte) Token {

@@ -15,7 +15,19 @@ func TestNextToken(test *testing.T) {
 	thanks
 	
 	let result be add(five, ten) plz
+	!-/*5 plz
+	5 < 10 > 5 plz
+
+	if (5 < 10) please
+		return True plz
+	thanks else please
+		return False plz
+	thanks
+
+	10 == 10 plz
+	10 != 5 plz
 	`
+
 	tests := []struct {
 		expectedType    token.TokenType
 		expectedLiteral string
@@ -55,6 +67,43 @@ func TestNextToken(test *testing.T) {
 		{token.COMMA, ","},
 		{token.IDENT, "ten"},
 		{token.RPAREN, ")"},
+		{token.TERMINATOR, "plz"},
+		{token.EXCLAMATION, "!"},
+		{token.MINUS, "-"},
+		{token.SLASH, "/"},
+		{token.ASTERISK, "*"},
+		{token.INT, "5"},
+		{token.TERMINATOR, "plz"},
+		{token.INT, "5"},
+		{token.LT, "<"},
+		{token.INT, "10"},
+		{token.GT, ">"},
+		{token.INT, "5"},
+		{token.TERMINATOR, "plz"},
+		{token.IF, "if"},
+		{token.LPAREN, "("},
+		{token.INT, "5"},
+		{token.LT, "<"},
+		{token.INT, "10"},
+		{token.RPAREN, ")"},
+		{token.LBRACE, "please"},
+		{token.RETURN, "return"},
+		{token.TRUE, "True"},
+		{token.TERMINATOR, "plz"},
+		{token.RBRACE, "thanks"},
+		{token.ELSE, "else"},
+		{token.LBRACE, "please"},
+		{token.RETURN, "return"},
+		{token.FALSE, "False"},
+		{token.TERMINATOR, "plz"},
+		{token.RBRACE, "thanks"},
+		{token.INT, "10"},
+		{token.EQ, "=="},
+		{token.INT, "10"},
+		{token.TERMINATOR, "plz"},
+		{token.INT, "10"},
+		{token.NOT_EQ, "!="},
+		{token.INT, "5"},
 		{token.TERMINATOR, "plz"},
 		{token.EOF, ""},
 	}
