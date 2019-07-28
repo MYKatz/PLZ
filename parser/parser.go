@@ -1,6 +1,8 @@
 package parser
 
 import (
+	"fmt"
+
 	"github.com/MYKatz/PLZ/ast"
 	"github.com/MYKatz/PLZ/lexer"
 	"github.com/MYKatz/PLZ/token"
@@ -11,10 +13,12 @@ type Parser struct {
 
 	curToken  token.Token
 	peekToken token.Token
+
+	errors []string
 }
 
 func NewParser(l *lexer.Lexer) *Parser {
-	p := &Parser{l: l}
+	p := &Parser{l: l, errors: []string{}}
 
 	p.nextToken()
 	p.nextToken() //so curToken and peekToken will be set upon initialization
@@ -42,10 +46,21 @@ func (p *Parser) ParseProgram() *ast.Program {
 	return program
 }
 
+func (p *Parser) Errors() []string {
+	return p.errors
+}
+
+func (p *Parser) addError(t token.TokenType) {
+	msg := fmt.Sprintf("Unexpected token type. Expected: %s, received %s", t, p.peekToken.Type)
+	p.errors = append(p.errors, msg)
+}
+
 func (p *Parser) parseStatement() ast.Statement {
 	switch p.curToken.Type {
 	case token.LET:
 		return p.parseLetStatement()
+	case token.RETURN:
+		return p.parseReturnStatement()
 	default:
 		return nil
 	}
@@ -78,10 +93,26 @@ func (p *Parser) expectPeek(t token.TokenType) bool {
 		p.nextToken()
 		return true
 	} else {
+		p.addError(t)
 		return false
 	}
 }
 
 func (p *Parser) curTokenIs(t token.TokenType) bool {
 	return p.curToken.Type == t
+}
+
+func (p *Parser) parseReturnStatement() *ast.ReturnStatement {
+	stmt := &ast.ReturnStatement{Token: p.curToken}
+
+	p.nextToken()
+
+	//TODO: rn ignores expression until terminator is reached
+	//not intended behavior, change later
+
+	for !p.curTokenIs(token.TERMINATOR) {
+		p.nextToken()
+	}
+
+	return stmt
 }
