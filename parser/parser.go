@@ -8,6 +8,17 @@ import (
 	"github.com/MYKatz/PLZ/token"
 )
 
+const ( //order or precedence
+	_ int = iota
+	LOWEST
+	EQUALS     // ==
+	COMPARATOR // > or <
+	ADD        // +
+	MULT       // *
+	PREFIX     // -foo, !bar, etc.
+	CALL       //func(x,y,z)
+)
+
 type Parser struct {
 	l *lexer.Lexer
 
@@ -15,13 +26,22 @@ type Parser struct {
 	peekToken token.Token
 
 	errors []string
+
+	prefixFunctions map[token.TokenType]prefixParseFn
+	infixFunctions  map[token.TokenType]infixParseFn
 }
+
+type prefixParseFn func() ast.Expression
+type infixParseFn func(*ast.Expression) ast.Expression //takes 'left' side of infix expression
 
 func NewParser(l *lexer.Lexer) *Parser {
 	p := &Parser{l: l, errors: []string{}}
 
 	p.nextToken()
 	p.nextToken() //so curToken and peekToken will be set upon initialization
+
+	p.prefixFunctions = make(map[token.TokenType]prefixParseFn)
+	p.registerPrefix(token.IDENT, p.parseIdentifier)
 
 	return p
 }
@@ -62,8 +82,12 @@ func (p *Parser) parseStatement() ast.Statement {
 	case token.RETURN:
 		return p.parseReturnStatement()
 	default:
-		return nil
+		return p.parseExpressionStatement()
 	}
+}
+
+func (p *Parser) parseIdentifier() ast.Expression {
+	return &ast.Identifier{Token: p.curToken, Value: p.curToken.Literal}
 }
 
 func (p *Parser) parseLetStatement() *ast.LetStatement {
@@ -102,6 +126,10 @@ func (p *Parser) curTokenIs(t token.TokenType) bool {
 	return p.curToken.Type == t
 }
 
+func (p *Parser) peekTokenIs(t token.TokenType) bool {
+	return p.peekToken.Type == t
+}
+
 func (p *Parser) parseReturnStatement() *ast.ReturnStatement {
 	stmt := &ast.ReturnStatement{Token: p.curToken}
 
@@ -115,4 +143,34 @@ func (p *Parser) parseReturnStatement() *ast.ReturnStatement {
 	}
 
 	return stmt
+}
+
+func (p *Parser) registerPrefix(tokenType token.TokenType, fn prefixParseFn) {
+	p.prefixFunctions[tokenType] = fn
+}
+
+func (p *Parser) registerInfix(tokenType token.TokenType, fn infixParseFn) {
+	p.infixFunctions[tokenType] = fn
+}
+
+func (p *Parser) parseExpressionStatement() *ast.ExpressionStatement {
+	stmt := &ast.ExpressionStatement{Token: p.curToken}
+
+	stmt.Expression = p.parseExpression(LOWEST)
+
+	if p.peekTokenIs(token.TERMINATOR) {
+		p.nextToken()
+	}
+
+	return stmt
+}
+
+func (p *Parser) parseExpression(precedence int) ast.Expression {
+	prefix := p.prefixFunctions[p.curToken.Type]
+	if prefix == nil {
+		return nil
+	}
+	leftExp := prefix()
+
+	return leftExp
 }
