@@ -47,6 +47,17 @@ type Identifier struct {
 	Value string
 }
 
+type IntegerLiteral struct {
+	Token token.Token
+	Value int64
+}
+
+type PrefixExpression struct {
+	Token    token.Token
+	Operator string
+	Right    Expression
+}
+
 func (i *Identifier) String() string {
 	return i.Value
 }
@@ -122,4 +133,31 @@ func (es *ExpressionStatement) String() string {
 func (i *Identifier) expressionNode() {}
 func (i *Identifier) TokenLiteral() string {
 	return i.Token.Literal
+}
+
+//integer functions
+
+func (i *IntegerLiteral) expressionNode() {}
+func (i *IntegerLiteral) TokenLiteral() string {
+	return i.Token.Literal
+}
+func (i *IntegerLiteral) String() string {
+	return i.Token.Literal
+}
+
+//prefixexpression functions
+
+func (pe *PrefixExpression) expressionNode() {}
+func (pe *PrefixExpression) TokenLiteral() string {
+	return pe.Token.Literal
+}
+func (pe *PrefixExpression) String() string {
+	var output bytes.Buffer
+
+	output.WriteString("(")
+	output.WriteString(pe.Operator)
+	output.WriteString(pe.Right.String())
+	output.WriteString(")")
+
+	return output.String()
 }

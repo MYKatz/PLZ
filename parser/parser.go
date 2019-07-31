@@ -2,6 +2,7 @@ package parser
 
 import (
 	"fmt"
+	"strconv"
 
 	"github.com/MYKatz/PLZ/ast"
 	"github.com/MYKatz/PLZ/lexer"
@@ -41,7 +42,10 @@ func NewParser(l *lexer.Lexer) *Parser {
 	p.nextToken() //so curToken and peekToken will be set upon initialization
 
 	p.prefixFunctions = make(map[token.TokenType]prefixParseFn)
+	p.registerPrefix(token.INT, p.parseIntegerLiteral)
 	p.registerPrefix(token.IDENT, p.parseIdentifier)
+	p.registerPrefix(token.EXCLAMATION, p.parsePrefixExpression)
+	p.registerPrefix(token.MINUS, p.parsePrefixExpression)
 
 	return p
 }
@@ -112,6 +116,21 @@ func (p *Parser) parseLetStatement() *ast.LetStatement {
 	return stmt
 }
 
+func (p *Parser) parseIntegerLiteral() ast.Expression {
+	lit := &ast.IntegerLiteral{Token: p.curToken}
+
+	value, err := strconv.ParseInt(p.curToken.Literal, 0, 64)
+	if err != nil {
+		msg := fmt.Sprintf("Could not parse %q as int", p.curToken.Literal)
+		p.errors = append(p.errors, msg)
+		return nil
+	}
+
+	lit.Value = value
+
+	return lit
+}
+
 func (p *Parser) expectPeek(t token.TokenType) bool {
 	if p.peekToken.Type == t {
 		p.nextToken()
@@ -165,12 +184,30 @@ func (p *Parser) parseExpressionStatement() *ast.ExpressionStatement {
 	return stmt
 }
 
+func (p *Parser) parsePrefixExpression() ast.Expression {
+	expression := &ast.PrefixExpression{
+		Token:    p.curToken,
+		Operator: p.curToken.Literal,
+	}
+
+	p.nextToken()
+
+	expression.Right = p.parseExpression(PREFIX)
+
+	return expression
+}
+
 func (p *Parser) parseExpression(precedence int) ast.Expression {
 	prefix := p.prefixFunctions[p.curToken.Type]
 	if prefix == nil {
+		p.throwNoParserError(p.curToken.Type)
 		return nil
 	}
 	leftExp := prefix()
 
 	return leftExp
+}
+
+func (p *Parser) throwNoParserError(t token.TokenType) {
+	p.errors = append(p.errors, fmt.Sprintf("No prefix parse function for %s", t))
 }
