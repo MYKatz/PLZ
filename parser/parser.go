@@ -57,6 +57,8 @@ func NewParser(l *lexer.Lexer) *Parser {
 	p.registerPrefix(token.IDENT, p.parseIdentifier)
 	p.registerPrefix(token.EXCLAMATION, p.parsePrefixExpression)
 	p.registerPrefix(token.MINUS, p.parsePrefixExpression)
+	p.registerPrefix(token.TRUE, p.parseBoolean)
+	p.registerPrefix(token.FALSE, p.parseBoolean)
 
 	p.infixFunctions = make(map[token.TokenType]infixParseFn)
 	p.registerInfix(token.PLUS, p.parseInfixExpression)
@@ -271,4 +273,11 @@ func (p *Parser) curPrecedence() int {
 
 func (p *Parser) throwNoParserError(t token.TokenType) {
 	p.errors = append(p.errors, fmt.Sprintf("No prefix parse function for %s", t))
+}
+
+func (p *Parser) parseBoolean() ast.Expression {
+	return &ast.Boolean{
+		Token: p.curToken,
+		Value: p.curTokenIs(token.TRUE),
+	}
 }
