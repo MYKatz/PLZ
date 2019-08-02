@@ -70,6 +70,18 @@ type Boolean struct {
 	Value bool
 }
 
+type IfExpression struct {
+	Token       token.Token
+	Condition   Expression
+	Consequence *BlockStatement
+	Alternative *BlockStatement
+}
+
+type BlockStatement struct {
+	Token      token.Token
+	Statements []Statement
+}
+
 func (i *Identifier) String() string {
 	return i.Value
 }
@@ -196,6 +208,38 @@ func (ie *InfixExpression) String() string {
 	output.WriteString(ie.Operator)
 	output.WriteString(ie.Right.String())
 	output.WriteString(")")
+
+	return output.String()
+}
+
+//ifexpression functions
+
+func (ie *IfExpression) expressionNode() {}
+func (ie *IfExpression) TokenLiteral() string {
+	return ie.Token.Literal
+}
+func (ie *IfExpression) String() string {
+	var output bytes.Buffer
+
+	output.WriteString("if")
+	output.WriteString(ie.Condition.String() + " ")
+	output.WriteString(" ")
+	output.WriteString(ie.Alternative.String())
+	return output.String()
+}
+
+//blockstatement functions
+
+func (bs *BlockStatement) expressionNode() {}
+func (bs *BlockStatement) TokenLiteral() string {
+	return bs.Token.Literal
+}
+func (bs *BlockStatement) String() string {
+	var output bytes.Buffer
+
+	for _, s := range bs.Statements {
+		output.WriteString(s.String())
+	}
 
 	return output.String()
 }
