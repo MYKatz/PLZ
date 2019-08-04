@@ -11,8 +11,8 @@ import (
 func TestLetStatement(t *testing.T) {
 	input := `
 	let a be 10 plz
-	let b be 2 plz
-	let c be 538 plz
+	let b be True plz
+	let c be foo plz
 	`
 
 	l := lexer.NewLexer(input)
@@ -34,10 +34,12 @@ func TestLetStatement(t *testing.T) {
 
 	tests := []struct {
 		expectedIdentifier string
+		input              string
+		expectedValue      interface{}
 	}{
-		{"a"},
-		{"b"},
-		{"c"},
+		{"a", "let a be 10 plz", 5},
+		{"b", "let b be True plz", true},
+		{"c", "let c be foo plz", "foo"},
 	}
 
 	for i, te := range tests {

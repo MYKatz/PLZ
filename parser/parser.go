@@ -135,9 +135,11 @@ func (p *Parser) parseLetStatement() *ast.LetStatement {
 		return nil
 	}
 
-	//TODO: rn ignores expression until terminator is reached
-	//not intended behavior, change later
-	for !p.curTokenIs(token.TERMINATOR) {
+	p.nextToken()
+
+	stmt.Value = p.parseExpression(LOWEST)
+
+	if p.peekTokenIs(token.TERMINATOR) {
 		p.nextToken()
 	}
 
@@ -182,10 +184,9 @@ func (p *Parser) parseReturnStatement() *ast.ReturnStatement {
 
 	p.nextToken()
 
-	//TODO: rn ignores expression until terminator is reached
-	//not intended behavior, change later
+	stmt.Value = p.parseExpression(LOWEST)
 
-	for !p.curTokenIs(token.TERMINATOR) {
+	if p.peekTokenIs(token.TERMINATOR) {
 		p.nextToken()
 	}
 
