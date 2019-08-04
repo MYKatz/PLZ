@@ -506,3 +506,38 @@ func checkParserErrors(t *testing.T, p *Parser) {
 	}
 	t.FailNow()
 }
+
+func TestCallExpression(t *testing.T) {
+	input := `add(2 + 3, 6 * 2, 5) plz`
+	l := lexer.NewLexer(input)
+	p := NewParser(l)
+	program := p.ParseProgram()
+	checkParserErrors(t, p)
+
+	if len(program.Statements) != 1 {
+		t.Fatalf("Program has incorrect number of statements. Got %d, expected 1", len(program.Statements))
+	}
+
+	stmt, ok := program.Statements[0].(*ast.ExpressionStatement)
+	if !ok {
+		t.Fatalf("expression not *ast.ExpressionStatement, is %T", program.Statements[0])
+	}
+
+	fn, ok := stmt.Expression.(*ast.CallExpression)
+	if !ok {
+		t.Fatalf("stmt.Expression not *ast.FunctionLiteral, is %T", stmt.Expression)
+	}
+
+	if !testIdentifier(t, fn.Function, "add") {
+		return
+	}
+
+	if len(fn.Arguments) != 3 {
+		t.Fatalf("Number of function arguments incorrect. Expected 3, received %d", len(fn.Arguments))
+	}
+
+	testInfixExpression(t, fn.Arguments[0], 2, "+", 3)
+	testInfixExpression(t, fn.Arguments[1], 6, "*", 2)
+	testLiteralExpression(t, fn.Arguments[2], 5)
+
+}
