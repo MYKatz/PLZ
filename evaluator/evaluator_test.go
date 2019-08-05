@@ -112,8 +112,8 @@ func TestIfElseExpressions(t *testing.T) {
 		input    string
 		expected interface{}
 	}{
-		{"if (True) { 1 }", 1},
-		{"if (10) { 10 }", 10},
+		{"if (True) please 1 thanks", 1},
+		{"if (10) please 10 thanks", 10},
 		{"if (False) { 50 }", nil},
 		{"if (10 > 2) { 25 }", 25},
 		{"if (10 < 2) { 10 }", nil},
@@ -137,4 +137,46 @@ func testNullObject(t *testing.T, obj object.Object) bool {
 		return false
 	}
 	return true
+}
+
+func TestReturnStatements(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected int64
+	}{
+		{"return 10 plz", 10},
+		{"return 15 plz", 15},
+		{"return 2 + 8 plz 9 plz", 10},
+	}
+
+	for _, tt := range tests {
+		evaluated := testEval(tt.input)
+		testIntegerObject(t, evaluated, tt.expected)
+	}
+}
+
+func TestErrorHandling(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected string
+	}{
+		{"5 + True plz", "type mismatch: INTEGER + BOOLEAN"},
+		{"5 + True plz 5 plz", "type mismatch: INTEGER + BOOLEAN"},
+		{"-True plz", "unknown operator: -BOOLEAN"},
+		{"True + False plz", "unknown operator: BOOLEAN + BOOLEAN"},
+	}
+
+	for _, tt := range tests {
+		evaluated := testEval(tt.input)
+
+		err, ok := evaluated.(*object.Error)
+		if !ok {
+			t.Errorf("no error object returned. Received %T", evaluated)
+			continue
+		}
+
+		if err.Message != tt.expected {
+			t.Errorf("wrong error message. Expected %q, received %q", tt.expected, err.Message)
+		}
+	}
 }
