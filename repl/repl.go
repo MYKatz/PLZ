@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"io"
 
+	"github.com/MYKatz/PLZ/evaluator"
 	"github.com/MYKatz/PLZ/lexer"
 	"github.com/MYKatz/PLZ/parser"
-	"github.com/MYKatz/PLZ/token"
 )
 
 const prompt = ">>>"
@@ -29,14 +29,13 @@ func Start(r io.Reader, w io.Writer) {
 
 			if len(p.Errors()) != 0 {
 				printParserErrors(w, p.Errors())
-				return
+				continue
 			}
 
-			io.WriteString(w, prog.String())
-			io.WriteString(w, "\n")
-
-			for tok := l.NextToken(); tok.Type != token.EOF; tok = l.NextToken() { //process input token-by-token until end-of-file
-				fmt.Printf("%+v \n", tok)
+			evaluated := evaluator.Eval(prog)
+			if evaluated != nil {
+				io.WriteString(w, evaluated.Inspect())
+				io.WriteString(w, "\n")
 			}
 		}
 	}
