@@ -15,6 +15,8 @@ func Eval(node ast.Node) object.Object {
 	switch node := node.(type) {
 	case *ast.Program:
 		return evalStatements(node.Statements)
+	case *ast.BlockStatement:
+		return evalStatements(node.Statements)
 	case *ast.ExpressionStatement:
 		return Eval(node.Expression)
 	case *ast.IntegerLiteral:
@@ -31,6 +33,8 @@ func Eval(node ast.Node) object.Object {
 		left := Eval(node.Left)
 		right := Eval(node.Right)
 		return evalInfixExpression(node.Operator, left, right)
+	case *ast.IfExpression:
+		return evalIfExpression(node)
 	}
 
 	return nil
@@ -82,6 +86,16 @@ func evalInfixExpression(operator string, left object.Object, right object.Objec
 	switch {
 	case left.Type() == object.INTEGER_OBJ && right.Type() == object.INTEGER_OBJ:
 		return evalIntegerInfixExpression(operator, left, right)
+	case operator == "==":
+		if left == right {
+			return BOOL_TRUE
+		}
+		return BOOL_FALSE
+	case operator == "!=":
+		if left != right {
+			return BOOL_TRUE
+		}
+		return BOOL_FALSE
 	default:
 		return nil
 	}
@@ -122,5 +136,30 @@ func evalIntegerInfixExpression(operator string, left object.Object, right objec
 		return BOOL_FALSE
 	default:
 		return NULL
+	}
+}
+
+func evalIfExpression(ie *ast.IfExpression) object.Object {
+	condition := Eval(ie.Condition)
+	if isTruthy(condition) {
+		return Eval(ie.Consequence)
+	} else if ie.Alternative != nil {
+		return Eval(ie.Alternative)
+	} else {
+		return NULL
+	}
+}
+
+//TODO: make certain other things truthy ie 0, empty string, etc.
+func isTruthy(obj object.Object) bool {
+	switch obj {
+	case NULL:
+		return false
+	case BOOL_TRUE:
+		return true
+	case BOOL_FALSE:
+		return false
+	default:
+		return true
 	}
 }
