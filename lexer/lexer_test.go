@@ -26,6 +26,9 @@ func TestNextToken(test *testing.T) {
 
 	10 == 10 plz
 	10 != 5 plz
+
+	"foo bar"
+	"foob"
 	`
 
 	tests := []struct {
@@ -105,6 +108,8 @@ func TestNextToken(test *testing.T) {
 		{token.NOT_EQ, "!="},
 		{token.INT, "5"},
 		{token.TERMINATOR, "plz"},
+		{token.STRING, "foo bar"},
+		{token.STRING, "foob"},
 		{token.EOF, ""},
 	}
 

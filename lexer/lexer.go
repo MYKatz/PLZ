@@ -63,7 +63,7 @@ func (l *Lexer) NextToken() token.Token {
 			tok = token.Token{Type: token.EQ, Literal: "=="}
 			l.readChar()
 		} else {
-			tok = token.NewToken(token.ASSIGN, l.ch)
+			tok = token.NewToken(token.ASSIGN, l.ch) //this is what allows declarations to optionally use '='
 		}
 	case '*':
 		tok = token.NewToken(token.ASTERISK, l.ch)
@@ -75,6 +75,9 @@ func (l *Lexer) NextToken() token.Token {
 		tok = token.NewToken(token.LT, l.ch)
 	case '>':
 		tok = token.NewToken(token.GT, l.ch)
+	case '"':
+		tok.Type = token.STRING
+		tok.Literal = l.readString()
 	case 0:
 		tok.Literal = ""
 		tok.Type = token.EOF
@@ -124,4 +127,15 @@ func (l *Lexer) eatWhitespace() {
 	for l.ch == ' ' || l.ch == '\t' || l.ch == '\n' || l.ch == '\r' {
 		l.readChar()
 	}
+}
+
+func (l *Lexer) readString() string {
+	pos := l.position + 1
+	for {
+		l.readChar()
+		if l.ch == '"' || l.ch == 0 {
+			break
+		}
+	}
+	return l.input[pos:l.position]
 }

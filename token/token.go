@@ -12,9 +12,10 @@ const (
 	EOF     = "EOF"
 
 	//identifiers
-	IDENT = "IDENT"
-	INT   = "INT"
-	FLOAT = "FLOAT"
+	IDENT  = "IDENT"
+	INT    = "INT"
+	FLOAT  = "FLOAT"
+	STRING = "STRING"
 
 	//operators
 	ASSIGN      = "BE"

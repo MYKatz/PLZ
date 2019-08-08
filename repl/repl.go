@@ -7,6 +7,7 @@ import (
 
 	"github.com/MYKatz/PLZ/evaluator"
 	"github.com/MYKatz/PLZ/lexer"
+	"github.com/MYKatz/PLZ/object"
 	"github.com/MYKatz/PLZ/parser"
 )
 
@@ -27,12 +28,14 @@ func Start(r io.Reader, w io.Writer) {
 
 			prog := p.ParseProgram()
 
+			env := object.NewEnvironment()
+
 			if len(p.Errors()) != 0 {
 				printParserErrors(w, p.Errors())
 				continue
 			}
 
-			evaluated := evaluator.Eval(prog)
+			evaluated := evaluator.Eval(prog, env)
 			if evaluated != nil {
 				io.WriteString(w, evaluated.Inspect())
 				io.WriteString(w, "\n")

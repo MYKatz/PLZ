@@ -1,6 +1,10 @@
 package object
 
-import "fmt"
+import (
+	"fmt"
+
+	"github.com/MYKatz/PLZ/ast"
+)
 
 type ObjectType string
 
@@ -10,6 +14,8 @@ const (
 	NULL_OBJ         = "NULL"
 	RETURN_VALUE_OBJ = "RETURN_VALUE"
 	ERROR_OBJ        = "ERROR"
+	FUNCTION_OBJ     = "FUNCTION"
+	STRING_OBJ       = "STRING"
 )
 
 type Object interface {
@@ -83,4 +89,34 @@ func (e *Error) Inspect() string {
 
 func (e *Error) Type() string {
 	return ERROR_OBJ
+}
+
+//function
+
+type Function struct {
+	Parameters []*ast.Identifier
+	Body       *ast.BlockStatement
+	Env        *Environment
+}
+
+func (fn *Function) Inspect() string {
+	return "" //TODO - function inspect
+}
+
+func (fn *Function) Type() string {
+	return FUNCTION_OBJ
+}
+
+//string
+
+type String struct {
+	Value string
+}
+
+func (s *String) Inspect() string {
+	return s.Value
+}
+
+func (s *String) Type() string {
+	return STRING_OBJ
 }

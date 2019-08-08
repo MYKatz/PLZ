@@ -240,3 +240,31 @@ func TestFunctions(t *testing.T) {
 		testIntegerObject(t, testEval(tt.input), tt.expected)
 	}
 }
+
+func TestStringLiteral(t *testing.T) {
+	input := `"Foo bar"`
+
+	evaluated := testEval(input)
+	str, ok := evaluated.(*object.String)
+	if !ok {
+		t.Fatalf("Object is incorrect type. Expected string, received %T", evaluated)
+	}
+
+	if str.Value != "Foo bar" {
+		t.Fatalf("str is incorrect. Expected 'foo bar', received %q", str.Value)
+	}
+}
+
+func TestStringConcatenation(t *testing.T) {
+	input := `"Foo" + " " + "bar"`
+
+	evaluated := testEval(input)
+	str, ok := evaluated.(*object.String)
+	if !ok {
+		t.Fatalf("Object is incorrect type. Expected string, received %T", evaluated)
+	}
+
+	if str.Value != "Foo bar" {
+		t.Fatalf("str is incorrect. Expected 'foo bar', received %q", str.Value)
+	}
+}

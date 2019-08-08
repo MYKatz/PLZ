@@ -543,3 +543,28 @@ func TestCallExpression(t *testing.T) {
 	testLiteralExpression(t, fn.Arguments[2], 5)
 
 }
+
+func TestStringExpression(t *testing.T) {
+	input := `"plz is awesome!" plz`
+	l := lexer.NewLexer(input)
+	p := NewParser(l)
+	program := p.ParseProgram()
+	checkParserErrors(t, p)
+
+	if len(program.Statements) != 1 {
+		t.Fatalf("Program has incorrect number of statements. Got %d, expected 1", len(program.Statements))
+	}
+
+	stmt, ok := program.Statements[0].(*ast.ExpressionStatement)
+	if !ok {
+		t.Fatalf("expression not *ast.ExpressionStatement, is %T", program.Statements[0])
+	}
+
+	literal, ok := stmt.Expression.(*ast.StringLiteral)
+	if !ok {
+		t.Fatalf("expression not *ast.StringLiteral, is %T", stmt.Expression)
+	}
+	if literal.Value != "plz is awesome!" {
+		t.Fatalf("Incorrect identifier value, expected %q, received %q", "plz is awesome!", literal.Value)
+	}
+}
