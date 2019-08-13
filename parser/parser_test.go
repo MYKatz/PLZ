@@ -568,3 +568,53 @@ func TestStringExpression(t *testing.T) {
 		t.Fatalf("Incorrect identifier value, expected %q, received %q", "plz is awesome!", literal.Value)
 	}
 }
+
+func TestParsingArrayLiterals(t *testing.T) {
+	input := "[1, 5 + 7, 9*9]"
+
+	l := lexer.NewLexer(input)
+	p := NewParser(l)
+	program := p.ParseProgram()
+	checkParserErrors(t, p)
+
+	if len(program.Statements) != 1 {
+		t.Fatalf("Program has incorrect number of statements. Got %d, expected 1", len(program.Statements))
+	}
+
+	stmt, ok := program.Statements[0].(*ast.ExpressionStatement)
+	literal, ok := stmt.Expression.(*ast.ArrayLiteral)
+	if !ok {
+		t.Fatalf("expression not *ast.ArrayLiteral, is %T", stmt.Expression)
+	}
+
+	if len(literal.Elements) != 3 {
+		t.Fatalf("ArrayLiteral has incorrect number of statements. Got %d, expected 3", len(literal.Elements))
+	}
+
+	testIntegerLiteral(t, literal.Elements[0], 1)
+	testInfixExpression(t, literal.Elements[1], 5, "+", 7)
+	testInfixExpression(t, literal.Elements[2], 9, "*", 9)
+}
+
+func TestParsingIndexExpressions(t *testing.T) {
+	input := "arr[1 + 3]"
+
+	l := lexer.NewLexer(input)
+	p := NewParser(l)
+	program := p.ParseProgram()
+	checkParserErrors(t, p)
+
+	stmt, ok := program.Statements[0].(*ast.ExpressionStatement)
+	index, ok := stmt.Expression.(*ast.IndexExpression)
+	if !ok {
+		t.Fatalf("expression not *ast.IndexExpression, is %T", stmt.Expression)
+	}
+
+	if !testIdentifier(t, index.Left, "arr") {
+		return
+	}
+
+	if !testInfixExpression(t, index.Index, 1, "+", 3) {
+		return
+	}
+}

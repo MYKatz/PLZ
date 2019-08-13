@@ -35,10 +35,12 @@ const (
 	COMMA      = ","
 	TERMINATOR = "PLZ"
 
-	LPAREN = "("
-	RPAREN = ")"
-	LBRACE = "{"
-	RBRACE = "}"
+	LPAREN   = "("
+	RPAREN   = ")"
+	LBRACE   = "{"
+	RBRACE   = "}"
+	LBRACKET = "["
+	RBRACKET = "]"
 
 	//keywords
 	FUNCTION = "FUNCTION"
