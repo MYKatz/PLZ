@@ -300,3 +300,19 @@ func TestLenBuiltinFunction(t *testing.T) {
 		}
 	}
 }
+
+func TestBuiltinOverrideErrorHandling(t *testing.T) {
+	input := "let len be function(x) please return x thanks plz"
+	expected := "Invalid let statement: cannot override builtin function len"
+
+	evaluated := testEval(input)
+	errObj, ok := evaluated.(*object.Error)
+
+	if !ok {
+		t.Errorf("object is not Error, received %T", evaluated)
+	}
+
+	if errObj.Message != expected {
+		t.Errorf("incorrect error message, expected %q, received %q", expected, errObj.Message)
+	}
+}

@@ -57,6 +57,10 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 		if isError(val) {
 			return val
 		}
+		_, ok := builtins[node.Name.Value]
+		if ok {
+			return newError("Invalid let statement: cannot override builtin function %s", node.Name.Value)
+		}
 		env.Set(node.Name.Value, val)
 	case *ast.Identifier:
 		return evalIdentifier(node, env)
@@ -235,14 +239,14 @@ func evalIfExpression(ie *ast.IfExpression, env *object.Environment) object.Obje
 }
 
 func evalIdentifier(node *ast.Identifier, env *object.Environment) object.Object {
-	val, ok := env.Get(node.Value)
-	if ok {
-		return val
-	}
-
 	builtin, ok := builtins[node.Value]
 	if ok {
 		return builtin
+	}
+
+	val, ok := env.Get(node.Value)
+	if ok {
+		return val
 	}
 	return newError("identifier not found: %s", node.Value)
 
@@ -264,13 +268,12 @@ func evalExpressions(exps []ast.Expression, env *object.Environment) []object.Ob
 
 func applyFunction(fn object.Object, args []object.Object) object.Object {
 	switch fn := fn.(type) {
+	case *object.BuiltIn: //putting this case first prevents overriding of builtin functions
+		return fn.Fn(args...)
 	case *object.Function:
 		extendedEnv := extendFunctionEnv(fn, args)
 		evaluated := Eval(fn.Body, extendedEnv)
 		return unwrapReturnValue(evaluated)
-
-	case *object.BuiltIn:
-		return fn.Fn(args...)
 
 	default:
 		return newError("not a function: %s", fn.Type())
