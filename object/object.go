@@ -8,6 +8,8 @@ import (
 
 type ObjectType string
 
+type BuiltinFunction func(args ...Object) Object
+
 const (
 	INTEGER_OBJ      = "INTEGER"
 	BOOLEAN_OBJ      = "BOOLEAN"
@@ -16,6 +18,7 @@ const (
 	ERROR_OBJ        = "ERROR"
 	FUNCTION_OBJ     = "FUNCTION"
 	STRING_OBJ       = "STRING"
+	BUILTIN_OBJ      = "BUILTIN"
 )
 
 type Object interface {
@@ -119,4 +122,18 @@ func (s *String) Inspect() string {
 
 func (s *String) Type() string {
 	return STRING_OBJ
+}
+
+//builtin
+
+type BuiltIn struct {
+	Fn BuiltinFunction
+}
+
+func (f *BuiltIn) Inspect() string {
+	return "builtin function"
+}
+
+func (f *BuiltIn) Type() string {
+	return BUILTIN_OBJ
 }
