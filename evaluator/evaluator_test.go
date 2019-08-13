@@ -316,3 +316,35 @@ func TestBuiltinOverrideErrorHandling(t *testing.T) {
 		t.Errorf("incorrect error message, expected %q, received %q", expected, errObj.Message)
 	}
 }
+
+func TestArrayLiterals(t *testing.T) {
+	input := "[1, 2 + 2, 3 * 3]"
+
+	evaluated := testEval(input)
+	result, ok := evaluated.(*object.Array)
+	if !ok {
+		t.Errorf("object is not Array, received %T", evaluated)
+	}
+
+	if len(result.Elements) != 3 {
+		t.Errorf("incorrect number of array elements. Expected 3, got %d", len(result.Elements))
+	}
+
+	testIntegerObject(t, result.Elements[0], 1)
+	testIntegerObject(t, result.Elements[1], 4)
+	testIntegerObject(t, result.Elements[2], 9)
+}
+
+func TestIndexExpression(t *testing.T) {
+	input := "[1, 2, 3][1]"
+	expected := 2
+
+	evaluated := testEval(input)
+	_, ok := evaluated.(*object.Integer)
+
+	if !ok {
+		t.Errorf("result is not integer. Received %T", evaluated)
+	}
+
+	testIntegerObject(t, evaluated, int64(expected))
+}

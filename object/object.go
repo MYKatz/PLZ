@@ -19,6 +19,7 @@ const (
 	FUNCTION_OBJ     = "FUNCTION"
 	STRING_OBJ       = "STRING"
 	BUILTIN_OBJ      = "BUILTIN"
+	ARRAY_OBJ        = "ARRAY"
 )
 
 type Object interface {
@@ -136,4 +137,18 @@ func (f *BuiltIn) Inspect() string {
 
 func (f *BuiltIn) Type() string {
 	return BUILTIN_OBJ
+}
+
+//array
+
+type Array struct {
+	Elements []Object
+}
+
+func (a *Array) Inspect() string {
+	return "" //TODO - function inspect
+}
+
+func (a *Array) Type() string {
+	return ARRAY_OBJ
 }
