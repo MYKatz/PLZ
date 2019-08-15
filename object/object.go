@@ -1,7 +1,9 @@
 package object
 
 import (
+	"bytes"
 	"fmt"
+	"strings"
 
 	"github.com/MYKatz/PLZ/ast"
 )
@@ -146,7 +148,19 @@ type Array struct {
 }
 
 func (a *Array) Inspect() string {
-	return "" //TODO - function inspect
+	var output bytes.Buffer
+
+	elements := []string{}
+
+	for _, el := range a.Elements {
+		elements = append(elements, el.Inspect())
+	}
+
+	output.WriteString("[")
+	output.WriteString(strings.Join(elements, ", "))
+	output.WriteString("]")
+
+	return output.String()
 }
 
 func (a *Array) Type() string {
