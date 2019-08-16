@@ -1,6 +1,8 @@
 package evaluator
 
 import (
+	"fmt"
+
 	"github.com/MYKatz/PLZ/object"
 )
 
@@ -71,6 +73,15 @@ var builtins = map[string]*object.BuiltIn{
 			default:
 				return newError("Invalid argument to peek, received %s", args[0].Type())
 			}
+		},
+	},
+	"print": &object.BuiltIn{
+		Fn: func(args ...object.Object) object.Object {
+			for _, obj := range args {
+				fmt.Println(obj.Inspect())
+			}
+
+			return NULL
 		},
 	},
 }
