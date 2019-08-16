@@ -47,4 +47,30 @@ var builtins = map[string]*object.BuiltIn{
 			}
 		},
 	},
+	"first": &object.BuiltIn{
+		Fn: func(args ...object.Object) object.Object {
+			if len(args) != 1 {
+				return newError("Incorrect number of arguments. Expected 1, received %d", len(args))
+			}
+			switch arg := args[0].(type) {
+			case *object.Array:
+				return arg.Elements[0]
+			default:
+				return newError("Invalid argument to peek, received %s", args[0].Type())
+			}
+		},
+	},
+	"rest": &object.BuiltIn{
+		Fn: func(args ...object.Object) object.Object {
+			if len(args) != 1 {
+				return newError("Incorrect number of arguments. Expected 1, received %d", len(args))
+			}
+			switch arg := args[0].(type) {
+			case *object.Array:
+				return &object.Array{Elements: arg.Elements[1:]}
+			default:
+				return newError("Invalid argument to peek, received %s", args[0].Type())
+			}
+		},
+	},
 }
