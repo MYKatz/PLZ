@@ -24,6 +24,7 @@ const (
 	ASTERISK    = "*"
 	SLASH       = "/"
 	EXCLAMATION = "!"
+	COLON       = ":"
 
 	//comparison
 	LT     = "<"

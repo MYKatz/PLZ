@@ -111,6 +111,11 @@ type IndexExpression struct {
 	Index Expression
 }
 
+type HashLiteral struct {
+	Token token.Token // '{'
+	Pairs map[Expression]Expression
+}
+
 func (i *Identifier) String() string {
 	return i.Value
 }
@@ -364,6 +369,24 @@ func (ie *IndexExpression) String() string {
 	output.WriteString("[")
 	output.WriteString(ie.Index.String())
 	output.WriteString("])")
+
+	return output.String()
+}
+
+//hashliteral functions
+
+func (hl *HashLiteral) expressionNode() {}
+func (hl *HashLiteral) TokenLiteral() string {
+	return hl.Token.Literal
+}
+func (hl *HashLiteral) String() string {
+	var output bytes.Buffer
+
+	output.WriteString("{")
+	for key, val := range hl.Pairs {
+		output.WriteString(key.String() + ":" + val.String() + ",")
+	}
+	output.WriteString("}")
 
 	return output.String()
 }
