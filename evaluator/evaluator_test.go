@@ -348,3 +348,39 @@ func TestIndexExpression(t *testing.T) {
 
 	testIntegerObject(t, evaluated, int64(expected))
 }
+
+func TestHashLiterals(t *testing.T) {
+	input := `let two be "two" plz
+	{
+		"one": 5 - 4,
+		two: 2,
+		"thre" + "e": 9 / 3,
+		4: 4,
+		true: 100,
+		false: -1
+	}`
+
+	evaluated := testEval(input)
+	res, ok := evaluated.(*object.HashMap)
+	if !ok {
+		t.Fatalf("Eval did not return hashmap, got %T", evaluated)
+	}
+
+	expected := map[object.HashKey]int64{
+		(&object.String{Value: "one"}).HashKey():   1,
+		(&object.String{Value: "two"}).HashKey():   2,
+		(&object.String{Value: "three"}).HashKey(): 3,
+		(&object.Integer{Value: 4}).HashKey():      4,
+		BOOL_TRUE.HashKey():                        100,
+		BOOL_FALSE.HashKey():                       -1,
+	}
+
+	for expectedKey, expectedValue := range expected {
+		pair, ok := res.Pairs[expectedKey]
+		if !ok {
+			t.Errorf("No pair")
+		}
+
+		testIntegerObject(t, pair.Value, expectedValue)
+	}
+}

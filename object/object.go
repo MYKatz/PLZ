@@ -3,6 +3,7 @@ package object
 import (
 	"bytes"
 	"fmt"
+	"hash/fnv"
 	"strings"
 
 	"github.com/MYKatz/PLZ/ast"
@@ -22,6 +23,7 @@ const (
 	STRING_OBJ       = "STRING"
 	BUILTIN_OBJ      = "BUILTIN"
 	ARRAY_OBJ        = "ARRAY"
+	HASH_OBJ         = "HASH"
 )
 
 type Object interface {
@@ -165,4 +167,68 @@ func (a *Array) Inspect() string {
 
 func (a *Array) Type() string {
 	return ARRAY_OBJ
+}
+
+//hashkey
+
+type HashKey struct {
+	Type  ObjectType
+	Value uint64
+}
+
+type Hashable interface {
+	HashKey() HashKey
+}
+
+//func to turn objects into hashkey
+
+func (b *Boolean) HashKey() HashKey {
+	var value uint64
+
+	if b.Value {
+		value = 1
+	} else {
+		value = 0
+	}
+
+	return HashKey{Type: BOOLEAN_OBJ, Value: value}
+}
+
+func (i *Integer) HashKey() HashKey {
+	return HashKey{Type: INTEGER_OBJ, Value: uint64(i.Value)}
+}
+
+func (s *String) HashKey() HashKey {
+	h := fnv.New64a()
+	h.Write([]byte(s.Value))
+
+	return HashKey{Type: STRING_OBJ, Value: h.Sum64()}
+}
+
+//hashes
+
+type HashPair struct {
+	Key   Object
+	Value Object
+}
+
+type HashMap struct {
+	Pairs map[HashKey]HashPair
+}
+
+func (hm *HashMap) Inspect() string {
+
+	var output bytes.Buffer
+
+	output.WriteString("{")
+	for _, pair := range hm.Pairs {
+		output.WriteString(pair.Key.Inspect() + ":" + pair.Value.Inspect() + ",")
+	}
+	output.WriteString("}")
+
+	return output.String()
+}
+
+func (hm *HashMap) Type() string {
+	return HASH_OBJ
 }
