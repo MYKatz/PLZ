@@ -384,3 +384,48 @@ func TestHashLiterals(t *testing.T) {
 		testIntegerObject(t, pair.Value, expectedValue)
 	}
 }
+
+func TestArrayAssignFunction(t *testing.T) {
+	input := `
+	let a be [1, 2, 4] plz
+	let a be assign(a, 2, 3) plz
+	a
+	`
+
+	evaluated := testEval(input)
+	res, ok := evaluated.(*object.Array)
+	if !ok {
+		t.Fatalf("Eval did not return array, got %T", evaluated)
+	}
+
+	num, ok := res.Elements[2].(*object.Integer)
+	if !ok {
+		t.Fatalf("New element is not integer, is type %T", res.Elements[2])
+	}
+	if num.Value != int64(3) {
+		t.Fatalf("Incorrect new array element. Expected 3, got %d", num.Value)
+	}
+}
+
+func TestHashAssignFunction(t *testing.T) {
+	input := `
+	let a be {"one": 1, "two": 3} plz
+	let a be assign(a, "two", 2) plz
+	a
+	`
+
+	evaluated := testEval(input)
+	res, ok := evaluated.(*object.HashMap)
+	if !ok {
+		t.Fatalf("Eval did not return hashmap, got %T", evaluated)
+	}
+
+	expectedKey := (&object.String{Value: "two"}).HashKey()
+
+	pair, ok := res.Pairs[expectedKey]
+	if !ok {
+		t.Errorf("No pair found")
+	}
+
+	testIntegerObject(t, pair.Value, 2)
+}
