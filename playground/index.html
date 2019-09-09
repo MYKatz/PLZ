@@ -60,6 +60,12 @@
             onClick="sendCode()"
             >Run</a
           >
+          <a
+            class="nav-item nav-link m-left-4"
+            href="#"
+            onClick="editor.setValue('');"
+            >Clear editor</a
+          >
           <span class="nav-item dropdown">
             <a
               class="nav-link dropdown-toggle"
@@ -93,14 +99,15 @@
       </div>
     </nav>
     <div id="editor" style="height: 70vh"></div>
-    <div id="output" class="mx-2">
+    <pre id="output" class="mx-2">
       <div class="msg"></div>
-    </div>
+    </pre>
   </body>
   <script src="examples.js"></script>
+
   <script
-    src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
-    integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+    src="https://code.jquery.com/jquery-3.4.1.min.js"
+    integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
     crossorigin="anonymous"
   ></script>
   <script
@@ -129,7 +136,25 @@
     function sendCode() {
       var output = document.getElementById("output");
       output.innerText = "Running on remote server..."; //send code here
-      console.log(editor.getValue(" "));
+      $.ajax({
+        url:
+          "https://yiyvgrm8te.execute-api.us-east-1.amazonaws.com/default/plz",
+        data: { code: editor.getValue(" ") },
+        dataType: "text",
+        type: "GET",
+        async: true,
+        statusCode: {
+          404: function(response) {
+            alert("404 error");
+          },
+          200: function(response) {
+            $("#output").html(response);
+          }
+        },
+        error: function(jqXHR, status, errorThrown) {
+          alert("error");
+        }
+      });
     }
 
     function setExample(name) {
