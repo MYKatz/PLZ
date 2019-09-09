@@ -75,11 +75,18 @@
               <a
                 class="dropdown-item"
                 href="#"
+                onClick="setExample('helloWorld')"
+                >Hello World</a
+              >
+              <a
+                class="dropdown-item"
+                href="#"
                 onClick="setExample('fibonacci')"
                 >Fibonacci</a
               >
-              <a class="dropdown-item" href="#">Another action</a>
-              <a class="dropdown-item" href="#">Something else here</a>
+              <a class="dropdown-item" href="#" onClick="setExample('sum')"
+                >Array Sum</a
+              >
             </div>
           </span>
         </div>
@@ -87,7 +94,7 @@
     </nav>
     <div id="editor" style="height: 70vh"></div>
     <div id="output" class="mx-2">
-      <div class="msg">a</div>
+      <div class="msg"></div>
     </div>
   </body>
   <script src="examples.js"></script>
@@ -113,7 +120,8 @@
   ></script>
   <script>
     var editor = CodeMirror(document.getElementById("editor"), {
-      value: "function myScript(){return 100;}\n",
+      value: `"Hi! Welcome to the PLZ playground!"
+"Click on the examples dropdown in the navbar to view code samples"`,
       theme: "cobalt",
       lineNumbers: true
     });
