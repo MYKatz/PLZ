@@ -356,13 +356,14 @@ func TestHashLiterals(t *testing.T) {
 		two: 2,
 		"thre" + "e": 9 / 3,
 		4: 4,
-		true: 100,
-		false: -1
+		True: 100,
+		False: -1
 	}`
 
 	evaluated := testEval(input)
 	res, ok := evaluated.(*object.HashMap)
 	if !ok {
+		t.Errorf(evaluated.Inspect())
 		t.Fatalf("Eval did not return hashmap, got %T", evaluated)
 	}
 
