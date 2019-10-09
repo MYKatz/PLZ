@@ -24,6 +24,7 @@ const (
 	BUILTIN_OBJ      = "BUILTIN"
 	ARRAY_OBJ        = "ARRAY"
 	HASH_OBJ         = "HASH"
+	HASHOBJ_OBJ      = "HASHOBJ"
 )
 
 type Object interface {
@@ -231,4 +232,20 @@ func (hm *HashMap) Inspect() string {
 
 func (hm *HashMap) Type() string {
 	return HASH_OBJ
+}
+
+//wrapper for objects accessed via Hash indexing
+type HashObject struct {
+	Hash     *HashMap
+	PlainKey Object
+	Key      HashKey
+	Inner    Object
+}
+
+func (ho *HashObject) Type() string {
+	return HASHOBJ_OBJ
+}
+
+func (ho *HashObject) Inspect() string {
+	return ho.Inner.Inspect()
 }

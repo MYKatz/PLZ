@@ -188,7 +188,7 @@ func TestLetStatements(t *testing.T) {
 		input    string
 		expected int64
 	}{
-		{"let a be 5 plz a plz", 5},
+		{"let a be 5 plz let a be 5 plz a plz", 5},
 		{"let a be 5 * 5 plz a plz", 25},
 		{"let a be 5 plz let b be a plz b plz", 5},
 		{"let a be 5 plz let b be a plz let c be a + b + 5 plz c plz", 15},
@@ -417,6 +417,30 @@ func TestHashAssignFunction(t *testing.T) {
 	evaluated := testEval(input)
 	res, ok := evaluated.(*object.HashMap)
 	if !ok {
+		t.Fatalf("Eval did not return hashmap, got %T", evaluated)
+	}
+
+	expectedKey := (&object.String{Value: "two"}).HashKey()
+
+	pair, ok := res.Pairs[expectedKey]
+	if !ok {
+		t.Errorf("No pair found")
+	}
+
+	testIntegerObject(t, pair.Value, 2)
+}
+
+func TestMapReassign(t *testing.T) {
+	input := `
+		let m be {"one": 1, "two": 3} plz
+		m["two"] = 2 plz
+		m
+	`
+
+	evaluated := testEval(input)
+	res, ok := evaluated.(*object.HashMap)
+	if !ok {
+		t.Errorf(evaluated.Inspect())
 		t.Fatalf("Eval did not return hashmap, got %T", evaluated)
 	}
 

@@ -137,6 +137,7 @@ func evalBlockStatement(block *ast.BlockStatement, env *object.Environment) obje
 }
 
 func evalPrefixExpression(operator string, right object.Object) object.Object {
+	right = openHashObj(right)
 	switch operator {
 	case "!":
 		return evalBangOperatorExpression(right)
@@ -170,7 +171,16 @@ func evalMinusPrefixOperatorExpression(right object.Object) object.Object {
 }
 
 func evalInfixExpression(operator string, left object.Object, right object.Object) object.Object {
+	right = openHashObj(right)
 	switch {
+	case left.Type() == object.HASHOBJ_OBJ && operator == "=":
+		return evalHashReassignment(left, right)
+	case left.Type() == object.HASHOBJ_OBJ:
+		l, ok := left.(*object.HashObject)
+		if !ok {
+			newError("Object with type HashObject is not hash object..?")
+		}
+		return evalInfixExpression(operator, l.Inner, right)
 	case left.Type() == object.INTEGER_OBJ && right.Type() == object.INTEGER_OBJ:
 		return evalIntegerInfixExpression(operator, left, right)
 	case left.Type() == object.STRING_OBJ && right.Type() == object.STRING_OBJ:
@@ -190,6 +200,16 @@ func evalInfixExpression(operator string, left object.Object, right object.Objec
 	default:
 		return newError("unknown operator: %s %s %s", left.Type(), operator, right.Type())
 	}
+}
+
+func evalHashReassignment(left object.Object, right object.Object) object.Object {
+	l, ok := left.(*object.HashObject)
+	if !ok {
+		newError("Object with type HashObject is not hash object..?")
+	}
+
+	l.Hash.Pairs[l.Key] = object.HashPair{Key: l.PlainKey, Value: right}
+	return right
 }
 
 func evalIntegerInfixExpression(operator string, left object.Object, right object.Object) object.Object {
@@ -299,6 +319,8 @@ func applyFunction(fn object.Object, args []object.Object) object.Object {
 }
 
 func evalIndexExpression(left object.Object, index object.Object) object.Object {
+	//left = openHashObj(left)
+	//index = openHashObj(left)
 	switch {
 	case left.Type() == object.ARRAY_OBJ && index.Type() == object.INTEGER_OBJ:
 		return evalArrayIndexExpression(left, index)
@@ -336,7 +358,8 @@ func evalHashIndexExpression(hash object.Object, index object.Object) object.Obj
 		return NULL
 	}
 
-	return pair.Value
+	obj := object.HashObject{Inner: pair.Value, Hash: hashObj, Key: key.HashKey(), PlainKey: index}
+	return &obj
 }
 
 func evalHashLiteral(node *ast.HashLiteral, env *object.Environment) object.Object {
@@ -385,6 +408,18 @@ func unwrapReturnValue(obj object.Object) object.Object {
 
 func newError(format string, a ...interface{}) *object.Error {
 	return &object.Error{Message: fmt.Sprintf(format, a...)}
+}
+
+func openHashObj(obj object.Object) object.Object {
+	if obj.Type() == object.HASHOBJ_OBJ {
+		o, ok := obj.(*object.HashObject)
+		if !ok {
+			newError("Object with type HashObject is not hash object..?")
+		}
+		return o.Inner
+	}
+
+	return obj
 }
 
 //TODO: make certain other things truthy ie 0, empty string, etc.

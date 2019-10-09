@@ -12,6 +12,7 @@ import (
 const ( //order or precedence
 	_ int = iota
 	LOWEST
+	ASSIGN
 	EQUALS     // ==
 	COMPARATOR // > or <
 	ADD        // +
@@ -22,6 +23,7 @@ const ( //order or precedence
 )
 
 var precedences = map[token.TokenType]int{
+	token.ASSIGN:   ASSIGN,
 	token.EQ:       EQUALS,
 	token.NOT_EQ:   EQUALS,
 	token.LT:       COMPARATOR,
@@ -80,6 +82,7 @@ func NewParser(l *lexer.Lexer) *Parser {
 	p.registerInfix(token.GT, p.parseInfixExpression)
 	p.registerInfix(token.LPAREN, p.parseCallExpression)
 	p.registerInfix(token.LBRACKET, p.parseIndexExpression)
+	p.registerInfix(token.ASSIGN, p.parseInfixExpression)
 
 	return p
 }
