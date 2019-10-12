@@ -454,3 +454,26 @@ func TestMapReassign(t *testing.T) {
 
 	testIntegerObject(t, pair.Value, 2)
 }
+
+func TestMapAccessWithPeriod(t *testing.T) {
+	input := `
+	let m be {"one": 1, "two": 2} plz
+	m.two plz
+	`
+
+	evaluated := testEval(input)
+	hash, ok := evaluated.(*object.HashObject)
+
+	if !ok {
+		t.Errorf(evaluated.Inspect())
+		t.Fatalf("Eval did not return hash object, got %T", evaluated)
+	}
+
+	integ, ok := hash.Inner.(*object.Integer)
+	if !ok {
+		t.Errorf(evaluated.Inspect())
+		t.Fatalf("Hash object does not contain integer, got %T", integ)
+	}
+
+	testIntegerObject(t, integ, 2)
+}

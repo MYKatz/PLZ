@@ -25,6 +25,7 @@ const (
 	SLASH       = "/"
 	EXCLAMATION = "!"
 	COLON       = ":"
+	PERIOD      = "."
 
 	//comparison
 	LT     = "<"

@@ -51,6 +51,8 @@ func (l *Lexer) NextToken() token.Token {
 		tok = token.NewToken(token.COMMA, l.ch)
 	case '+':
 		tok = token.NewToken(token.PLUS, l.ch)
+	case '.':
+		tok = token.NewToken(token.PERIOD, l.ch)
 	case '!':
 		if l.checkChar() == '=' {
 			tok = token.Token{Type: token.NOT_EQ, Literal: "!="}
